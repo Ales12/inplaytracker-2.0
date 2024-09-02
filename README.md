@@ -2,6 +2,9 @@
 Mit diesen Plugin könnt ihr eure Inplayszenen im Profil anzeigen lassen und euren Mitspieler darüber informieren, wenn es neue Antworten/eine neue Szene gibt. <br />
 Ihr habt zudem die Möglichkeit anzugeben, ob es sich um eine Gruppenszene oder Einzelszene handelt, so dass sich andere in eine Szene hinzufügen können. Alle Szenenpartner haben die Möglichkeit die Informationen über die Szene abzuändern.<br />
 <br />
+## Integrierte Plugins
+Messagerplugin von Ales
+
 ## neue DB-Felder unter threads
 charas, date, time, place und add_charas
 
