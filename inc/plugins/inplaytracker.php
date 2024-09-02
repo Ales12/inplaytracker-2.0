@@ -43,7 +43,7 @@ function inplaytracker_info()
     return array(
         "name" => "Inplaytracker",
         "description" => "Szenenübersicht deiner Charaktere. Szeneninformation im Profil. Szenenerinnerungen, wenn länger nicht mehr gepostet wurde.",
-        "website" => "",
+        "website" => "https://github.com/Ales12/inplaytracker-2.0",
         "author" => "Ales",
         "authorsite" => "https://github.com/Ales12",
         "version" => "2.0",
