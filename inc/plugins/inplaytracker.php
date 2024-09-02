@@ -813,22 +813,6 @@ function inplaytracker_activate()
         $alertType->setCanBeUserDisabled(true);
 
         $alertTypeManager->add($alertType);
-
-
-        $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
-        $alertType->setCode('alert_ipt_edit'); // The codename for your alert type. Can be any unique string.
-        $alertType->setEnabled(true);
-        $alertType->setCanBeUserDisabled(true);
-
-        $alertTypeManager->add($alertType);
-
-
-        $alertType = new MybbStuff_MyAlerts_Entity_AlertType();
-        $alertType->setCode('alert_ipt_add'); // The codename for your alert type. Can be any unique string.
-        $alertType->setEnabled(true);
-        $alertType->setCanBeUserDisabled(true);
-
-        $alertTypeManager->add($alertType);
     }
 
     require MYBB_ROOT . "/inc/adminfunctions_templates.php";
@@ -851,8 +835,6 @@ function inplaytracker_deactivate()
 
         $alertTypeManager->deleteByCode('alert_ipt_newscene');
         $alertTypeManager->deleteByCode('alert_ipt_newreply');
-        $alertTypeManager->deleteByCode('alert_ipt_edit');
-        $alertTypeManager->deleteByCode('alert_ipt_add');
     }
 
 
@@ -1540,58 +1522,60 @@ function inplaytracker_misc()
 
             $uid = $db->fetch_field($query, "uid");
 
-            $get_charas = $scenecharas . "," . $mybb->user['username'];
-
-
-            $update_scene = array(
-                "charas" => $db->escape_string($get_charas),
-            );
-
-            $db->update_query("threads", $update_scene, "tid = {$get_tid}");
-            redirect("showthread.php?tid={$get_tid}");
-
         }
+
+        $get_charas = $scenecharas . "," . $mybb->user['username'];
+
+
+        $update_scene = array(
+            "charas" => $db->escape_string($get_charas),
+        );
+
+        $db->update_query("threads", $update_scene, "tid = {$get_tid}");
+        redirect("showthread.php?tid={$get_tid}");
+
+    }
+}
+
+// global anzeigen
+
+function inplaytracker_global()
+{
+    global $db, $templates, $mybb, $lang, $allscenes, $openscenes, $ipt_global, $ipt_reminder;
+
+    $lang->load['inplaytracker'];
+
+    // variabel leeren und definieren
+    $inplay_cat = "";
+    $postreminder = "";
+    $openscenes = 0;
+    $allscenes = 0;
+    $watingscenes = 0;
+
+    //welcher user ist online
+    $this_user = intval($mybb->user['uid']);
+
+    //für den fall nicht mit hauptaccount online
+    $as_uid = intval($mybb->user['as_uid']);
+
+    // variabel füllen
+    $inplay_cat = $mybb->settings['ipt_inplay_id'];
+    $postreminder = $mybb->settings['ipt_scenereminder'];
+
+    // einmal alle uid ziehen, die entweder Mainaccount oder daran Angehängt sind
+
+    if ($as_uid == 0) {
+        $select = $db->query("SELECT * FROM " . TABLE_PREFIX . "users WHERE (as_uid = $this_user) OR (uid = $this_user) ORDER BY username ASC");
+    } else if ($as_uid != 0) {
+        //id des users holen wo alle angehangen sind
+        $select = $db->query("SELECT * FROM " . TABLE_PREFIX . "users WHERE (as_uid = $as_uid) OR (uid = $this_user) OR (uid = $as_uid) ORDER BY username ASC");
     }
 
-    // global anzeigen
-
-    function inplaytracker_global()
-    {
-        global $db, $templates, $mybb, $lang, $allscenes, $openscenes, $ipt_global, $ipt_reminder;
-
-        $lang->load['inplaytracker'];
-
-        // variabel leeren und definieren
-        $inplay_cat = "";
-        $postreminder = "";
-        $openscenes = 0;
-        $allscenes = 0;
-        $watingscenes = 0;
-
-        //welcher user ist online
-        $this_user = intval($mybb->user['uid']);
-
-        //für den fall nicht mit hauptaccount online
-        $as_uid = intval($mybb->user['as_uid']);
-
-        // variabel füllen
-        $inplay_cat = $mybb->settings['ipt_inplay_id'];
-        $postreminder = $mybb->settings['ipt_scenereminder'];
-
-        // einmal alle uid ziehen, die entweder Mainaccount oder daran Angehängt sind
-
-        if ($as_uid == 0) {
-            $select = $db->query("SELECT * FROM " . TABLE_PREFIX . "users WHERE (as_uid = $this_user) OR (uid = $this_user) ORDER BY username ASC");
-        } else if ($as_uid != 0) {
-            //id des users holen wo alle angehangen sind
-            $select = $db->query("SELECT * FROM " . TABLE_PREFIX . "users WHERE (as_uid = $as_uid) OR (uid = $this_user) OR (uid = $as_uid) ORDER BY username ASC");
-        }
-
-        while ($select_charas = $db->fetch_array($select)) {
-            $chara = $db->escape_string($select_charas['username']);
-            $chara_if = $select_charas['username'];
-            // alle Szenen der charaktere zählen und was bei denen offen ist
-            $scenequery = $db->query("SELECT t.lastposter, t.lastpost, t.charas, t.lastposteruid
+    while ($select_charas = $db->fetch_array($select)) {
+        $chara = $db->escape_string($select_charas['username']);
+        $chara_if = $select_charas['username'];
+        // alle Szenen der charaktere zählen und was bei denen offen ist
+        $scenequery = $db->query("SELECT t.lastposter, t.lastpost, t.charas, t.lastposteruid
         FROM " . TABLE_PREFIX . "posts p
         LEFT JOIN " . TABLE_PREFIX . "threads t
         on (t.lastpost = p.dateline )
@@ -1602,31 +1586,31 @@ function inplaytracker_misc()
         and t.charas like '%" . $chara . "%'
         ");
 
-            while ($get_scenes = $db->fetch_array($scenequery)) {
-                // alle Szenen einmal hochzählen
-                $allscenes++;
+        while ($get_scenes = $db->fetch_array($scenequery)) {
+            // alle Szenen einmal hochzählen
+            $allscenes++;
 
-                // Charaktere auseinander nehmen
-                $get_charas = explode(",", $get_scenes['charas']);
+            // Charaktere auseinander nehmen
+            $get_charas = explode(",", $get_scenes['charas']);
 
-                // jetzt müssen wir abfragen, wer in der Szene dran ist
-                $get_lastposter = array_search($get_scenes['lastposter'], $get_charas);
-                // geh den array eins weiter, ich brauch ja den nächsten in der Liste
-                $get_lastposter = $get_lastposter + 1;
-                // übergebe den Charakter auf Position $get_lastposter + 1
-                $next_chara = $get_charas[$get_lastposter];
-                // wenn nicht existent, dann ist der Charakter auf der ersten Position dran
-                if (!$get_charas[$get_lastposter]) {
-                    $next_chara = $get_charas[0];
-                }
-                // Wenn Charaktername gleich den Namen des Charas, der als nächstes dran ist, dann offene Szene zählen
-                if ($next_chara == $chara) {
-                    $openscenes++;
-                }
+            // jetzt müssen wir abfragen, wer in der Szene dran ist
+            $get_lastposter = array_search($get_scenes['lastposter'], $get_charas);
+            // geh den array eins weiter, ich brauch ja den nächsten in der Liste
+            $get_lastposter = $get_lastposter + 1;
+            // übergebe den Charakter auf Position $get_lastposter + 1
+            $next_chara = $get_charas[$get_lastposter];
+            // wenn nicht existent, dann ist der Charakter auf der ersten Position dran
+            if (!$get_charas[$get_lastposter]) {
+                $next_chara = $get_charas[0];
             }
-            // Posterinnerung
+            // Wenn Charaktername gleich den Namen des Charas, der als nächstes dran ist, dann offene Szene zählen
+            if ($next_chara == $chara) {
+                $openscenes++;
+            }
+        }
+        // Posterinnerung
 
-            $query = $db->query("SELECT t.lastpost, t.lastposter
+        $query = $db->query("SELECT t.lastpost, t.lastposter
         from " . TABLE_PREFIX . "threads t
         LEFT JOIN " . TABLE_PREFIX . "forums f
         on (t.fid = f.fid) 
@@ -1635,55 +1619,55 @@ function inplaytracker_misc()
         and t.charas like '%" . $chara . "%'
         ");
 
-            while ($row = $db->fetch_array($query)) {
-                $lastpost = 0;
-                $today = 0;
-                $get_days = 0;
+        while ($row = $db->fetch_array($query)) {
+            $lastpost = 0;
+            $today = 0;
+            $get_days = 0;
 
-                $today = time();
-                $lastpost = $row['lastpost'];
-                $faktor = 86400;
-                $diff_days = $today - $lastpost;
-                $get_days = round($diff_days / $faktor);
+            $today = time();
+            $lastpost = $row['lastpost'];
+            $faktor = 86400;
+            $diff_days = $today - $lastpost;
+            $get_days = round($diff_days / $faktor);
 
-                if ($postreminder <= $get_days and $chara_if != $row['lastposter']) {
-                    $watingscenes++;
-                }
+            if ($postreminder <= $get_days and $chara_if != $row['lastposter']) {
+                $watingscenes++;
             }
-        }
-        eval ("\$ipt_global = \"" . $templates->get("ipt_global") . "\";");
-
-        if ($watingscenes > 0) {
-            if ($watingscenes == 1) {
-                $lang->ipt_reminder_global = $lang->sprintf($lang->ipt_reminder_global_1, $watingscenes, $postreminder);
-            } else {
-                $lang->ipt_reminder_global = $lang->sprintf($lang->ipt_reminder_global, $watingscenes, $postreminder);
-            }
-
-            eval ("\$ipt_reminder = \"" . $templates->get("ipt_reminder_alert") . "\";");
         }
     }
+    eval ("\$ipt_global = \"" . $templates->get("ipt_global") . "\";");
 
-    // Szenen im Profile anzeigen
-    function inplaytracker_member_profile()
-    {
-        global $db, $mybb, $templates, $memprofile, $ipt_profile, $lang, $ipt_activescenes, $ipt_closedscenes, $scenetitle, $scenedate, $sccenecharas, $scenetime, $sceneplace;
-        $lang->load['inplaytracker'];
+    if ($watingscenes > 0) {
+        if ($watingscenes == 1) {
+            $lang->ipt_reminder_global = $lang->sprintf($lang->ipt_reminder_global_1, $watingscenes, $postreminder);
+        } else {
+            $lang->ipt_reminder_global = $lang->sprintf($lang->ipt_reminder_global, $watingscenes, $postreminder);
+        }
 
-        // variabel leeren
-        $inplay_cat = "";
-        $archive_forum = "";
-        $activescenes = 0;
-        $closedscenes = 0;
-        $charaprofile = "";
+        eval ("\$ipt_reminder = \"" . $templates->get("ipt_reminder_alert") . "\";");
+    }
+}
 
-        // variabel füllen
-        $inplay_cat = $mybb->settings['ipt_inplay_id'];
-        $archive_forum = $mybb->settings['ipt_archive_id'];
-        $charaprofile = $db->escape_string($memprofile['username']);
-        $charauid = $memprofile['uid'];
+// Szenen im Profile anzeigen
+function inplaytracker_member_profile()
+{
+    global $db, $mybb, $templates, $memprofile, $ipt_profile, $lang, $ipt_activescenes, $ipt_closedscenes, $scenetitle, $scenedate, $sccenecharas, $scenetime, $sceneplace;
+    $lang->load['inplaytracker'];
 
-        $scenequery = $db->query("SELECT t.charas, t.date, t.time, t.place, t.subject, t.tid, t.replies, p.uid
+    // variabel leeren
+    $inplay_cat = "";
+    $archive_forum = "";
+    $activescenes = 0;
+    $closedscenes = 0;
+    $charaprofile = "";
+
+    // variabel füllen
+    $inplay_cat = $mybb->settings['ipt_inplay_id'];
+    $archive_forum = $mybb->settings['ipt_archive_id'];
+    $charaprofile = $db->escape_string($memprofile['username']);
+    $charauid = $memprofile['uid'];
+
+    $scenequery = $db->query("SELECT t.charas, t.date, t.time, t.place, t.subject, t.tid, t.replies, p.uid
        FROM " . TABLE_PREFIX . "threads t
         LEFT JOIN " . TABLE_PREFIX . "posts p
         on t.tid = p.tid 
@@ -1696,58 +1680,62 @@ function inplaytracker_misc()
         ORDER BY t.date desc, t.subject asc
     ");
 
-        while ($profilescenes = $db->fetch_array($scenequery)) {
-            // aktive Szenen hochzählen
-            $activescenes++;
-            // variabeln leeren
-            $scenetitle = "";
-            $scenedate = "";
-            $scenecharas = "";
-            $scenetime = "";
-            $sceneplace = "";
-            $writeposts = 0;
-            $ownposts = 0;
-            $tid = 0;
+    while ($profilescenes = $db->fetch_array($scenequery)) {
+        // aktive Szenen hochzählen
+        $activescenes++;
+        // variabeln leeren
+        $scenetitle = "";
+        $scenedate = "";
+        $scenecharas = "";
+        $scenetime = "";
+        $sceneplace = "";
+        $writeposts = 0;
+        $ownposts = 0;
+        $tid = 0;
 
-            // variabeln mit Informationen füllen
-            $tid = $profilescenes['tid'];
-            $scenetitle = "<a href='showthread.php?tid={$tid}'>{$profilescenes['subject']}</a>";
+        // variabeln mit Informationen füllen
+        $tid = $profilescenes['tid'];
+        $scenetitle = "<a href='showthread.php?tid={$tid}'>{$profilescenes['subject']}</a>";
 
-            $get_charas = explode(",", $profilescenes['charas']);
-            // Charakter bisschen hübsch machen
-            $charalist = array();
-            foreach ($get_charas as $chara) {
-                $chara = $db->escape_string($chara);
-                $chara_query = $db->simple_select("users", "*", "username ='$chara'");
-                $charaktername = $db->fetch_array($chara_query);
-                if (!empty($charaktername)) {
-                    $username = format_name($charaktername['username'], $charaktername['usergroup'], $charaktername['displaygroup']);
-                    $chara = build_profile_link($username, $charaktername['uid']);
-                } else {
-                    $chara = $chara;
-                }
-                array_push($charalist, $chara);
+        $get_charas = explode(",", $profilescenes['charas']);
+        // Charakter bisschen hübsch machen
+        $charalist = array();
+        foreach ($get_charas as $chara) {
+            $chara = $db->escape_string($chara);
+            $chara_query = $db->simple_select("users", "*", "username ='$chara'");
+            $charaktername = $db->fetch_array($chara_query);
+            if (!empty($charaktername)) {
+                $username = format_name($charaktername['username'], $charaktername['usergroup'], $charaktername['displaygroup']);
+                $chara = build_profile_link($username, $charaktername['uid']);
+            } else {
+                $chara = $chara;
             }
-
-
-
-            //lasst uns die Charas wieder zusammenkleben :D
-            $scenecharas = implode(" • ", $charalist);
-
-            // restliche Informationen auslesen              
-            $scenedate = date("d.m.Y", strtotime($profilescenes['date']));
-            $scenetime = $profilescenes['time'];
-            $sceneplace = $profilescenes['place'];
-            $writeposts = $profilescenes['replies'] + 1;
-            $select_allposts = $db->simple_select("posts", "count(*) as postcount", "uid = '" . $charauid . "' and tid = '" . $tid . "'");
-            $ownposts = $db->fetch_field($select_allposts, "postcount");
-
-            eval ("\$ipt_activescenes .= \"" . $templates->get("ipt_profile_bit") . "\";");
+            array_push($charalist, $chara);
         }
 
 
-        // archiv
-        $scenequery = $db->query("SELECT t.charas, t.date, t.time, t.place, t.subject, t.tid, t.replies, p.uid
+
+        //lasst uns die Charas wieder zusammenkleben :D
+        $scenecharas = implode(" • ", $charalist);
+
+        // restliche Informationen auslesen              
+        $scenedate = date("d.m.Y", strtotime($profilescenes['date']));
+        $scenetime = $profilescenes['time'];
+        $sceneplace = $profilescenes['place'];
+        $writeposts = $profilescenes['replies'] + 1;
+        $select_allposts = $db->simple_select("posts", "count(*) as postcount", "uid = '" . $charauid . "' and tid = '" . $tid . "'");
+        $ownposts = $db->fetch_field($select_allposts, "postcount");
+
+        eval ("\$ipt_activescenes .= \"" . $templates->get("ipt_profile_bit") . "\";");
+    }
+
+    if ($activescenes == 0) {
+        $ipt_activescenes = $lang->ipt_noactivescenes;
+    }
+
+
+    // archiv
+    $scenequery = $db->query("SELECT t.charas, t.date, t.time, t.place, t.subject, t.tid, t.replies, p.uid
        FROM " . TABLE_PREFIX . "threads t
         LEFT JOIN " . TABLE_PREFIX . "posts p
         on t.tid = p.tid 
@@ -1761,181 +1749,186 @@ function inplaytracker_misc()
         ORDER BY t.date desc, t.subject asc
     ");
 
-        while ($profilescenes = $db->fetch_array($scenequery)) {
-            // aktive Szenen hochzählen
-            $closedscenes++;
-            // variabeln leeren
-            $scenetitle = "";
-            $scenedate = "";
-            $scenecharas = "";
-            $scenetime = "";
-            $sceneplace = "";
-            $tid = 0;
-            $writeposts = 0;
-            $ownposts = 0;
+    while ($profilescenes = $db->fetch_array($scenequery)) {
+        // aktive Szenen hochzählen
+        $closedscenes++;
+        // variabeln leeren
+        $scenetitle = "";
+        $scenedate = "";
+        $scenecharas = "";
+        $scenetime = "";
+        $sceneplace = "";
+        $tid = 0;
+        $writeposts = 0;
+        $ownposts = 0;
 
-            // variabeln mit Informationen füllen
-            $tid = $profilescenes['tid'];
-            $scenetitle = "<a href='showthread.php?tid={$tid}'>{$profilescenes['subject']}</a>";
+        // variabeln mit Informationen füllen
+        $tid = $profilescenes['tid'];
+        $scenetitle = "<a href='showthread.php?tid={$tid}'>{$profilescenes['subject']}</a>";
 
-            $get_charas = explode(",", $profilescenes['charas']);
-            // Charakter bisschen hübsch machen
+        $get_charas = explode(",", $profilescenes['charas']);
+        // Charakter bisschen hübsch machen
 
-            $charalist = array();
-            foreach ($get_charas as $chara) {
-                $chara = $db->escape_string($chara);
-                $chara_query = $db->simple_select("users", "*", "username ='$chara'");
-                $charaktername = $db->fetch_array($chara_query);
-                if (!empty($charaktername)) {
-                    $username = format_name($charaktername['username'], $charaktername['usergroup'], $charaktername['displaygroup']);
-                    $chara = build_profile_link($username, $charaktername['uid']);
-                } else {
-                    $chara = $chara;
-                }
-                array_push($charalist, $chara);
+        $charalist = array();
+        foreach ($get_charas as $chara) {
+            $chara = $db->escape_string($chara);
+            $chara_query = $db->simple_select("users", "*", "username ='$chara'");
+            $charaktername = $db->fetch_array($chara_query);
+            if (!empty($charaktername)) {
+                $username = format_name($charaktername['username'], $charaktername['usergroup'], $charaktername['displaygroup']);
+                $chara = build_profile_link($username, $charaktername['uid']);
+            } else {
+                $chara = $chara;
             }
-
-            //lasst uns die Charas wieder zusammenkleben :D
-            $scenecharas = implode(" • ", $charalist);
-
-            // restliche Informationen auslesen              
-            $scenedate = date("d.m.Y", strtotime($profilescenes['date']));
-            $scenetime = $profilescenes['time'];
-            $sceneplace = $profilescenes['place'];
-            $writeposts = $profilescenes['replies'] + 1;
-            $select_allposts = $db->simple_select("posts", "count(*) as postcount", "uid = '" . $charauid . "' and tid = '" . $tid . "'");
-            $ownposts = $db->fetch_field($select_allposts, "postcount");
-
-            eval ("\$ipt_closedscenes .= \"" . $templates->get("ipt_profile_bit") . "\";");
+            array_push($charalist, $chara);
         }
-        eval ("\$ipt_profile = \"" . $templates->get("ipt_profile") . "\";");
+
+        //lasst uns die Charas wieder zusammenkleben :D
+        $scenecharas = implode(" • ", $charalist);
+
+        // restliche Informationen auslesen              
+        $scenedate = date("d.m.Y", strtotime($profilescenes['date']));
+        $scenetime = $profilescenes['time'];
+        $sceneplace = $profilescenes['place'];
+        $writeposts = $profilescenes['replies'] + 1;
+        $select_allposts = $db->simple_select("posts", "count(*) as postcount", "uid = '" . $charauid . "' and tid = '" . $tid . "'");
+        $ownposts = $db->fetch_field($select_allposts, "postcount");
+
+        eval ("\$ipt_closedscenes .= \"" . $templates->get("ipt_profile_bit") . "\";");
     }
 
+    if ($closedscenes == 0) {
+        $ipt_closedscenes = $lang->ipt_noclosedscenes;
+    }
 
-    // Benachrichtungen generieren
-    function inplaytracker_alerts()
+    eval ("\$ipt_profile = \"" . $templates->get("ipt_profile") . "\";");
+}
+
+
+// Benachrichtungen generieren
+function inplaytracker_alerts()
+{
+    global $mybb, $lang;
+    $lang->load('inplaytracker');
+
+    /**
+     * Alert, wenn eine neue Szene eröffnet wurde.
+     */
+    class MybbStuff_MyAlerts_Formatter_InplaytrackerNewsceneFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
     {
-        global $mybb, $lang;
-        $lang->load('inplaytracker');
-
         /**
-         * Alert, wenn eine neue Szene eröffnet wurde.
+         * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+         *
+         * @return string The formatted alert string.
          */
-        class MybbStuff_MyAlerts_Formatter_InplaytrackerNewsceneFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
+        public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
         {
-            /**
-             * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
-             *
-             * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
-             *
-             * @return string The formatted alert string.
-             */
-            public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
-            {
-                $alertContent = $alert->getExtraDetails();
-                return $this->lang->sprintf(
-                    $this->lang->alert_ipt_newscene,
-                    $outputAlert['from_user'],
-                    $outputAlert['dateline']
-                );
-            }
-
-
-            /**
-             * Init function called before running formatAlert(). Used to load language files and initialize other required
-             * resources.
-             *
-             * @return void
-             */
-            public function init()
-            {
-            }
-
-            /**
-             * Build a link to an alert's content so that the system can redirect to it.
-             *
-             * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
-             *
-             * @return string The built alert, preferably an absolute link.
-             */
-            public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
-            {
-                $alertContent = $alert->getExtraDetails();
-                return $this->mybb->settings['bburl'] . '/' . get_post_link((int) $alertContent['lastpost'], (int) $alert->getObjectId());
-            }
-        }
-
-
-        if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
-            $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
-
-            if (!$formatterManager) {
-                $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
-            }
-
-            $formatterManager->registerFormatter(
-                new MybbStuff_MyAlerts_Formatter_InplaytrackerNewsceneFormatter($mybb, $lang, 'alert_ipt_newscene')
+            $alertContent = $alert->getExtraDetails();
+            return $this->lang->sprintf(
+                $this->lang->alert_ipt_newscene,
+                $outputAlert['from_user'],
+                $outputAlert['dateline']
             );
         }
 
+
         /**
-         * Alert, wenn es eine neue Antwort gibt.
+         * Init function called before running formatAlert(). Used to load language files and initialize other required
+         * resources.
+         *
+         * @return void
          */
-        class MybbStuff_MyAlerts_Formatter_InplaytrackerNewreplyFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
+        public function init()
         {
-            /**
-             * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
-             *
-             * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
-             *
-             * @return string The formatted alert string.
-             */
-            public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
-            {
-                $alertContent = $alert->getExtraDetails();
-                return $this->lang->sprintf(
-                    $this->lang->alert_ipt_newreply,
-                    $outputAlert['from_user'],
-                    $alertContent['subject'],
-                    $outputAlert['dateline']
-                );
-            }
-
-
-            /**
-             * Init function called before running formatAlert(). Used to load language files and initialize other required
-             * resources.
-             *
-             * @return void
-             */
-            public function init()
-            {
-            }
-
-            /**
-             * Build a link to an alert's content so that the system can redirect to it.
-             *
-             * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
-             *
-             * @return string The built alert, preferably an absolute link.
-             */
-            public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
-            {
-                $alertContent = $alert->getExtraDetails();
-                return $this->mybb->settings['bburl'] . '/' . get_post_link((int) $alertContent['lastpost'], (int) $alert->getObjectId()) . '#pid' . $alertContent['lastpost'];
-            }
         }
 
-        if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
-            $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
-
-            if (!$formatterManager) {
-                $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
-            }
-
-            $formatterManager->registerFormatter(
-                new MybbStuff_MyAlerts_Formatter_InplaytrackerNewreplyFormatter($mybb, $lang, 'alert_ipt_newreply')
-            );
+        /**
+         * Build a link to an alert's content so that the system can redirect to it.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+         *
+         * @return string The built alert, preferably an absolute link.
+         */
+        public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+        {
+            $alertContent = $alert->getExtraDetails();
+            return $this->mybb->settings['bburl'] . '/' . get_post_link((int) $alertContent['lastpost'], (int) $alert->getObjectId());
         }
     }
+
+
+    if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
+        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+
+        if (!$formatterManager) {
+            $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+        }
+
+        $formatterManager->registerFormatter(
+            new MybbStuff_MyAlerts_Formatter_InplaytrackerNewsceneFormatter($mybb, $lang, 'alert_ipt_newscene')
+        );
+    }
+
+    /**
+     * Alert, wenn es eine neue Antwort gibt.
+     */
+    class MybbStuff_MyAlerts_Formatter_InplaytrackerNewreplyFormatter extends MybbStuff_MyAlerts_Formatter_AbstractFormatter
+    {
+        /**
+         * Format an alert into it's output string to be used in both the main alerts listing page and the popup.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to format.
+         *
+         * @return string The formatted alert string.
+         */
+        public function formatAlert(MybbStuff_MyAlerts_Entity_Alert $alert, array $outputAlert)
+        {
+            $alertContent = $alert->getExtraDetails();
+            return $this->lang->sprintf(
+                $this->lang->alert_ipt_newreply,
+                $outputAlert['from_user'],
+                $alertContent['subject'],
+                $outputAlert['dateline']
+            );
+        }
+
+
+        /**
+         * Init function called before running formatAlert(). Used to load language files and initialize other required
+         * resources.
+         *
+         * @return void
+         */
+        public function init()
+        {
+        }
+
+        /**
+         * Build a link to an alert's content so that the system can redirect to it.
+         *
+         * @param MybbStuff_MyAlerts_Entity_Alert $alert The alert to build the link for.
+         *
+         * @return string The built alert, preferably an absolute link.
+         */
+        public function buildShowLink(MybbStuff_MyAlerts_Entity_Alert $alert)
+        {
+            $alertContent = $alert->getExtraDetails();
+            return $this->mybb->settings['bburl'] . '/' . get_post_link((int) $alertContent['lastpost'], (int) $alert->getObjectId()) . '#pid' . $alertContent['lastpost'];
+        }
+    }
+
+    if (class_exists('MybbStuff_MyAlerts_AlertFormatterManager')) {
+        $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::getInstance();
+
+        if (!$formatterManager) {
+            $formatterManager = MybbStuff_MyAlerts_AlertFormatterManager::createInstance($mybb, $lang);
+        }
+
+        $formatterManager->registerFormatter(
+            new MybbStuff_MyAlerts_Formatter_InplaytrackerNewreplyFormatter($mybb, $lang, 'alert_ipt_newreply')
+        );
+    }
+
 }
