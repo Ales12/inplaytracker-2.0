@@ -110,6 +110,27 @@ function inplaytracker_install()
     );
     $db->insert_query('settings', $setting_array);
 
+    $setting_array = array(
+        'name' => 'ipt_messager',
+        'title' => 'Ist der Messagerplugin installiert?',
+        'description' => 'Ab wie vielen Tagen soll eine Erinnerung für eine Szene erscheinen?',
+        'optionscode' => 'yesno',
+        'value' => '0',
+        'disporder' => 4,
+        "gid" => (int) $gid
+    );
+    $db->insert_query('settings', $setting_array);
+
+    $setting_array = array(
+        'name' => 'ipt_messager_id',
+        'title' => 'Messagerforum',
+        'description' => 'In welchem Forum liegt der Messager?',
+        'optionscode' => 'forumselectsingle ',
+        'value' => '2',
+        'disporder' => 5,
+        "gid" => (int) $gid
+    );
+    $db->insert_query('settings', $setting_array);
 
 
     // Templates
@@ -776,6 +797,8 @@ function inplaytracker_uninstall()
     $db->query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name='ipt_inplay_id'");
     $db->query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name='ipt_archive_id'");
     $db->query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name='ipt_scenereminder'");
+    $db->query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name='ipt_messager'");
+    $db->query("DELETE FROM " . TABLE_PREFIX . "settings WHERE name='ipt_messager_id'");
 
     $db->delete_query("templates", "title LIKE '%ipt%'");
 
@@ -844,6 +867,28 @@ function inplaytracker_deactivate()
     find_replace_templatesets("member_profile", "#" . preg_quote('{$ipt_profile}') . "#i", '', 0);
 }
 
+
+// ADMIN-CP PEEKER
+$plugins->add_hook('admin_config_settings_change', 'inplaytracker_settings_change');
+$plugins->add_hook('admin_settings_print_peekers', 'inplaytracker_settings_peek');
+function inplaytracker_settings_change()
+{
+    global $db, $mybb, $inplaytracker_settings_peeker;
+
+    $result = $db->simple_select('settinggroups', 'gid', "name='inplaytracker'", array("limit" => 1));
+    $group = $db->fetch_array($result);
+    $inplaytracker_settings_peeker = ($mybb->input['gid'] == $group['gid']) && ($mybb->request_method != 'post');
+}
+function inplaytracker_settings_peek(&$peekers)
+{
+    global $mybb, $inplaytracker_settings_peeker;
+
+    if ($inplaytracker_settings_peeker) {
+        $peekers[] = 'new Peeker($(".setting_ipt_messager"), $("#row_setting_ipt_messager_id"),/1/,true)';
+    }
+}
+
+
 /* Newthread Informationen 
  * Hier geht es erstmal darum die Daten in New Thread zu übergeben. Hier wird das Template dafür ausgelesen und es sorgt dafür, dass die Daten nicht verschwinden, wenn man mal auf Vorschau geht.
  */
@@ -856,8 +901,12 @@ function inplaytracker_newscene()
 
     // variabeln leeren
     $inplay_cat = "";
+    $messager = "";
+    $messager_id = 0;
     // variabel füllen
     $inplay_cat = $mybb->settings['ipt_inplay_id'];
+    $messager = $mybb->settings['ipt_messager'];
+    $messager_id = $mybb->settings['ipt_messager_id'];
 
     $add_charas = array(
         "0" => "{$lang->ipt_addcharas_no}",
@@ -900,7 +949,16 @@ function inplaytracker_newscene()
             }
         }
 
-        eval ("\$ipt_newscene = \"" . $templates->get("ipt_newscene") . "\";");
+        if ($messager == 1) {
+            if ($forum['fid'] == $messager_id) {
+                $ipt_newscene = "";
+            } else {
+                eval ("\$ipt_newscene = \"" . $templates->get("ipt_newscene") . "\";");
+            }
+        } else {
+            eval ("\$ipt_newscene = \"" . $templates->get("ipt_newscene") . "\";");
+        }
+
     }
 }
 
@@ -985,12 +1043,15 @@ function inplaytracker_editscene()
 
     // variabel leeren
     $inplay_cat = "";
+    $messager = "";
+    $messager_id = 0;
     $archive_forum = "";
 
     // variabel füllen
     $inplay_cat = $mybb->setting['ipt_inplay_id'];
     $archive_forum = $mybb->setting['ipt_archive_id'];
-
+    $messager = $mybb->settings['ipt_messager'];
+    $messager_id = $mybb->settings['ipt_messager_id'];
     // und einmal auslesen
 
     $forum['parentlist'] = "," . $forum['parentlist'] . ",";
@@ -1029,7 +1090,17 @@ function inplaytracker_editscene()
 
                 }
             }
-            eval ("\$ipt_editscene = \"" . $templates->get("ipt_editscene") . "\";");
+
+            if ($messager == 1) {
+                if ($forum['fid'] == $messager_id) {
+                    $ipt_newscene = "";
+                } else {
+                    eval ("\$ipt_editscene = \"" . $templates->get("ipt_editscene") . "\";");
+                }
+            } else {
+                eval ("\$ipt_editscene = \"" . $templates->get("ipt_editscene") . "\";");
+            }
+
         }
 
     }
