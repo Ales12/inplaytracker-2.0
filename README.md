@@ -3,7 +3,7 @@ Mit diesen Plugin könnt ihr eure Inplayszenen im Profil anzeigen lassen und eur
 Ihr habt zudem die Möglichkeit anzugeben, ob es sich um eine Gruppenszene oder Einzelszene handelt, so dass sich andere in eine Szene hinzufügen können. Alle Szenenpartner haben die Möglichkeit die Informationen über die Szene abzuändern.<br />
 <br />
 ## Integrierte Plugins
-[Messagesystem by Ales](https://github.com/Ales12/messagersystem)
+[Messagersystem by Ales](https://github.com/Ales12/messagersystem)
 
 ## neue DB-Felder unter threads
 charas, date, time, place und add_charas
