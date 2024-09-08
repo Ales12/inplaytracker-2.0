@@ -38,6 +38,10 @@ $plugins->add_hook('global_start', 'inplaytracker_global');
 // Profil
 $plugins->add_hook('member_profile_end', 'inplaytracker_member_profile');
 
+//wer ist wo
+$plugins->add_hook('fetch_wol_activity_end', 'inplaytracker_user_activity');
+$plugins->add_hook('build_friendly_wol_location_end', 'inplaytracker_location_activity');
+
 function inplaytracker_info()
 {
     return array(
@@ -2002,4 +2006,23 @@ function inplaytracker_alerts()
         );
     }
 
+}
+
+function inplaytracker_user_activity($user_activity){
+    global $user;
+    if(my_strpos($user['location'], "misc.php?action=inplayscenes") !== false) {
+        $user_activity['activity'] = "inplayscenes";
+    }
+
+    return $user_activity;
+}
+
+function inplaytracker_location_activity($plugin_array) {
+    global $db, $mybb, $lang;
+    $lang->load('inplaytracker');
+    if($plugin_array['user_activity']['activity'] == "inplayscenes")
+    {
+        $plugin_array['location_name'] = $lang->ipt_wiw;
+    }
+    return $plugin_array;
 }
