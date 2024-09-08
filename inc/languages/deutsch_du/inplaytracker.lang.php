@@ -49,6 +49,9 @@ $l['ipt_reminder'] = "Posterinnerung";
 $l['ipt_sincedays'] = "Folgende Szenen sind seit {1} Tagen offen";
 $l['ipt_sincedays_1'] = "Folgende Szene ist seit {1} Tagen offen";
 
+// wer ist wo
+$l['ipt_wiw'] = "Sieht sich gerade die Übersicht der eigenen Inplayszenen an.";
+
 // Alerts
 $l['alert_ipt_newscene'] = "{1} hat eine neue Szene eröffnet.";
 $l["alert_ipt_newreply"] = "{1} hat auf eure Szene <b>{2}</b> geantwortet.";
