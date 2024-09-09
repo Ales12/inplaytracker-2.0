@@ -334,7 +334,7 @@ if(use_xmlhttprequest == "1")
 <body>
 {$header}
 <table class="tborder" border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}">
-	<tr><td class="thead"><strong>{$lang->ipt_inplaytracker} ({$openscenes} {$lang->ipt_openscenes}{$lang->ipt_sep}{$allscenes} {$lang->ipt_scenes} )</strong></td></tr>
+	<tr><td class="thead"><strong>{$lang->ipt_inplaytracker} ({$lang->ipt_allscenes})</strong></td></tr>
 		{$ipt_misc_charas}
 	</table>
 {$footer}
@@ -350,7 +350,7 @@ if(use_xmlhttprequest == "1")
         'title' => 'ipt_misc_charas',
         'template' => $db->escape_string('<tr><td>
 <div class="charaterbox">
-	<strong>{$chara} ({$opencharascenes} {$lang->ipt_openscenes}{$lang->ipt_sep}{$charascenes} {$lang->ipt_scenes})</strong>
+	<strong>{$chara} ({$lang->ipt_charascenes})</strong>
 </div>
 {$ipt_misc_scenes}
 	</td>
@@ -1389,6 +1389,11 @@ function inplaytracker_misc()
             $opencharascenes = 0;
             $aktivescene = "";
             $openscene = "";
+
+            $allaktivescene = "Szenen";
+            $aktivescene = "Szenen";
+            $openscene = "Szenen";
+            $allopenscene = "Szenen";
 
             $scenequery = $db->query("SELECT t.lastposter, t.lastpost, t.date, t.time, t.charas, t.subject, t.place, t.lastposteruid, p.tid
     FROM " . TABLE_PREFIX . "posts p
