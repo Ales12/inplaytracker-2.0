@@ -1380,6 +1380,8 @@ function inplaytracker_misc()
             //id des users holen wo alle angehangen sind
             $select = $db->query("SELECT * FROM " . TABLE_PREFIX . "users WHERE (as_uid = $as_uid) OR (uid = $this_user) OR (uid = $as_uid) ORDER BY username ASC");
         }
+        $allaktivescene = "Szenen";
+        $allopenscene = "Szenen";
 
         while ($charaselect = $db->fetch_array($select)) {
             $character = $db->escape_string($charaselect["username"]);
@@ -1390,10 +1392,9 @@ function inplaytracker_misc()
             $aktivescene = "";
             $openscene = "";
 
-            $allaktivescene = "Szenen";
             $aktivescene = "Szenen";
             $openscene = "Szenen";
-            $allopenscene = "Szenen";
+
 
             $scenequery = $db->query("SELECT t.lastposter, t.lastpost, t.date, t.time, t.charas, t.subject, t.place, t.lastposteruid, p.tid
     FROM " . TABLE_PREFIX . "posts p
@@ -1419,7 +1420,6 @@ function inplaytracker_misc()
 
                 // alle Szenen des Charakters zählen
                 $charascenes++;
-
                 if ($charascenes == 1) {
                     $aktivescene = "Szene";
                 } else {
@@ -2013,20 +2013,21 @@ function inplaytracker_alerts()
 
 }
 
-function inplaytracker_user_activity($user_activity){
+function inplaytracker_user_activity($user_activity)
+{
     global $user;
-    if(my_strpos($user['location'], "misc.php?action=inplayscenes") !== false) {
+    if (my_strpos($user['location'], "misc.php?action=inplayscenes") !== false) {
         $user_activity['activity'] = "inplayscenes";
     }
 
     return $user_activity;
 }
 
-function inplaytracker_location_activity($plugin_array) {
+function inplaytracker_location_activity($plugin_array)
+{
     global $db, $mybb, $lang;
     $lang->load('inplaytracker');
-    if($plugin_array['user_activity']['activity'] == "inplayscenes")
-    {
+    if ($plugin_array['user_activity']['activity'] == "inplayscenes") {
         $plugin_array['location_name'] = $lang->ipt_wiw;
     }
     return $plugin_array;
