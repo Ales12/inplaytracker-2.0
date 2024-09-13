@@ -350,7 +350,7 @@ if(use_xmlhttprequest == "1")
         'title' => 'ipt_misc_charas',
         'template' => $db->escape_string('<tr><td>
 <div class="charaterbox">
-	<strong>{$chara} ({$lang->ipt_charascenes})</strong>
+	<strong>{$chara} ({$charascenes})</strong>
 </div>
 {$ipt_misc_scenes}
 	</td>
@@ -1492,7 +1492,7 @@ function inplaytracker_misc()
 
                 eval ("\$ipt_misc_scenes .= \"" . $templates->get("ipt_misc_scenes") . "\";");
             }
-            $lang->ipt_charascenes = $lang->sprintf($lang->ipt_charascenes, $opencharascenes, $openscene, $charascenes, $aktivescene);
+            $charascenes = $lang->sprintf($lang->ipt_charascenes, $opencharascenes, $openscene, $charascenes, $aktivescene);
             $chara = format_name($charaselect['username'], $charaselect['usergroup'], $charaselect['displaygroup']);
             eval ("\$ipt_misc_charas .= \"" . $templates->get("ipt_misc_charas") . "\";");
         }
