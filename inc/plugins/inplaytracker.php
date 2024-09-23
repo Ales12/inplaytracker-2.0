@@ -1240,7 +1240,7 @@ function inplaytracker_showthread()
             if ($key == $thread['add_charas']) {
                 $checked = "selected";
             }
-            $scenestatus .= "<option value='{$key}' {$checked}>{$value} {$checked}</option'>";
+            $scenestatus .= "<option value='{$key}' {$checked}>{$value}</option'>";
 
         }
 
