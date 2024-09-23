@@ -847,6 +847,9 @@ function inplaytracker_activate()
     find_replace_templatesets("header", "#" . preg_quote('{$pm_notice}') . "#i", '{$ipt_reminder} {$pm_notice}');
     find_replace_templatesets("header_welcomeblock_member", "#" . preg_quote('{$admincplink}') . "#i", '{$admincplink} {$ipt_global}');
     find_replace_templatesets("member_profile", "#" . preg_quote('{$bannedbit}') . "#i", '{$bannedbit} {$ipt_profile}');
+    find_replace_templatesets("newthread", "#" . preg_quote('{$posticons}') . "#i", '{$posticons} {$ipt_newscene}');
+    find_replace_templatesets("editpost", "#" . preg_quote('{$posticons}') . "#i", '{$posticons} {$ipt_editscene}');
+    find_replace_templatesets("showthread", "#" . preg_quote('<tr><td id="posts_container">') . "#i", ' {$ipt_showthread}<tr><td id="posts_container">');
 }
 
 function inplaytracker_deactivate()
@@ -869,6 +872,10 @@ function inplaytracker_deactivate()
     find_replace_templatesets("header", "#" . preg_quote('{$ipt_reminder}') . "#i", '', 0);
     find_replace_templatesets("header_welcomeblock_member", "#" . preg_quote('{$ipt_global}') . "#i", '', 0);
     find_replace_templatesets("member_profile", "#" . preg_quote('{$ipt_profile}') . "#i", '', 0);
+    find_replace_templatesets("newthread", "#" . preg_quote('{$ipt_newscene}') . "#i", '', 0);
+    find_replace_templatesets("editpost", "#" . preg_quote('{$ipt_editscene}') . "#i", '', 0);
+    find_replace_templatesets("showthread", "#" . preg_quote('{$ipt_showthread}') . "#i", '', 0);
+
 }
 
 
@@ -920,6 +927,8 @@ function inplaytracker_newscene()
     foreach ($add_charas as $key => $value) {
         $scenestatus .= "<option value='{$key}'>{$value}</option'>";
     }
+
+    $date = "01.01.2024";
 
 
     // den Szeneneröffner schon mal in den array packen
@@ -1231,7 +1240,7 @@ function inplaytracker_showthread()
             if ($key == $thread['add_charas']) {
                 $checked = "selected";
             }
-            $scenestatus .= "<option value='{$key}' {$checked}>{$value}</option'>";
+            $scenestatus .= "<option value='{$key}' {$checked}>{$value} {$checked}</option'>";
 
         }
 
