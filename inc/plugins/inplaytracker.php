@@ -850,6 +850,9 @@ function inplaytracker_activate()
     find_replace_templatesets("newthread", "#" . preg_quote('{$posticons}') . "#i", '{$posticons} {$ipt_newscene}');
     find_replace_templatesets("editpost", "#" . preg_quote('{$posticons}') . "#i", '{$posticons} {$ipt_editscene}');
     find_replace_templatesets("showthread", "#" . preg_quote('<tr><td id="posts_container">') . "#i", ' {$ipt_showthread}<tr><td id="posts_container">');
+    find_replace_templatesets("forumdisplay_thread", "#" . preg_quote('<span class="thread_start_datetime smalltext">{$thread[\'start_datetime\']}</span></div>
+		</div>') . "#i", '<span class="thread_start_datetime smalltext">{$thread[\'start_datetime\']}</span></div>
+		</div>{$ipt_forumdisplay}');
 }
 
 function inplaytracker_deactivate()
@@ -875,7 +878,7 @@ function inplaytracker_deactivate()
     find_replace_templatesets("newthread", "#" . preg_quote('{$ipt_newscene}') . "#i", '', 0);
     find_replace_templatesets("editpost", "#" . preg_quote('{$ipt_editscene}') . "#i", '', 0);
     find_replace_templatesets("showthread", "#" . preg_quote('{$ipt_showthread}') . "#i", '', 0);
-
+ find_replace_templatesets("forumdisplay_thread", "#" . preg_quote('{$ipt_forumdisplay}') . "#i", '', 0);
 }
 
 
