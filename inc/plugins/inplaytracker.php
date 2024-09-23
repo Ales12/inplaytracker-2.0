@@ -232,12 +232,12 @@ if(use_xmlhttprequest == "1")
 <tr>
 		<td class="trow2"><strong>{$lang->ipt_date}</strong></td>	</tr>
 <tr>
-		<td class="trow2"><input type="date" class="textbox" name="date" id="date" size="40" maxlength="1155" value="{$thread[\'date\']}" /> <input type="text" class="textbox" name="time" id="time"  size="40" maxlength="1155" value="{$thread[\'time\']}" /> </td>
+		<td class="trow2"><input type="date" class="textbox" name="date" id="date" size="40" maxlength="1155" value="{$thread[\'date\']}" /> <input type="text" class="textbox" name="time" id="time"  size="40" maxlength="1155" value="{$thread[\'time\']}"   style="width: 200px;"/> </td>
 </tr>		
 <tr>
 		<td class="trow1"><strong>{$lang->ipt_place}</strong></td>	</tr>
 <tr>
-		<td class="trow1"><input type="text" class="textbox" name="place" id="place" size="40" maxlength="1155" value="{$thread[\'place\']}"></td>
+		<td class="trow1"><input type="text" class="textbox" name="place" id="place" size="40" maxlength="1155" value="{$thread[\'place\']}"   style="width: 200px;"></td>
 </tr>
 				<tr>
 		<td class="trow1"><strong>{$lang->ipt_scenekind}</strong></td></tr>
