@@ -843,7 +843,7 @@ function inplaytracker_activate()
     }
 
     require MYBB_ROOT . "/inc/adminfunctions_templates.php";
-
+    find_replace_templatesets("forumdisplay_thread", "#" . preg_quote('</span>{$thread[\'multipage\']}</span>') . "#i", '</span>{$thread[\'multipage\']}</span> {$ipt_forumdisplay}');
     find_replace_templatesets("header", "#" . preg_quote('{$pm_notice}') . "#i", '{$ipt_reminder} {$pm_notice}');
     find_replace_templatesets("header_welcomeblock_member", "#" . preg_quote('{$admincplink}') . "#i", '{$admincplink} {$ipt_global}');
     find_replace_templatesets("member_profile", "#" . preg_quote('{$bannedbit}') . "#i", '{$bannedbit} {$ipt_profile}');
@@ -875,7 +875,7 @@ function inplaytracker_deactivate()
     find_replace_templatesets("newthread", "#" . preg_quote('{$ipt_newscene}') . "#i", '', 0);
     find_replace_templatesets("editpost", "#" . preg_quote('{$ipt_editscene}') . "#i", '', 0);
     find_replace_templatesets("showthread", "#" . preg_quote('{$ipt_showthread}') . "#i", '', 0);
-
+    find_replace_templatesets("forumdisplay_thread", "#" . preg_quote('{$ipt_forumdisplay}') . "#i", '', 0);
 }
 
 
@@ -1322,7 +1322,7 @@ function inplaytracker_forumdisplay(&$thread)
     $archive_forum = "";
     $charas = "";
     $chara = '';
-    $ipt_forumdisplay = "";
+ 
 
     // variabel füllen
     $inplay_cat = $mybb->settings['ipt_inplay_id'];
@@ -1357,6 +1357,7 @@ function inplaytracker_forumdisplay(&$thread)
         // Datum formatieren
         $thread['date'] = strtotime($thread['date']);
         $thread['date'] = date("d.m.Y", $thread['date']);
+           $ipt_forumdisplay = "";
         eval ("\$ipt_forumdisplay = \"" . $templates->get("ipt_forumdisplay") . "\";");
     }
 }
