@@ -1061,12 +1061,11 @@ function inplaytracker_editscene()
     $archive_forum = "";
 
     // variabel füllen
-    $inplay_cat = $mybb->settings['ipt_inplay_id'];
-    $archive_forum = $mybb->settings['ipt_archive_id'];
+    $inplay_cat = $mybb->setting['ipt_inplay_id'];
+    $archive_forum = $mybb->setting['ipt_archive_id'];
     $messager = $mybb->settings['ipt_messager'];
     $messager_id = $mybb->settings['ipt_messager_id'];
     // und einmal auslesen
-
 
     $forum['parentlist'] = "," . $forum['parentlist'] . ",";
     if (preg_match("/,$inplay_cat,/i", $forum['parentlist']) or preg_match("/$archive_forum,/i", $forum['parentlist'])) {
@@ -1250,18 +1249,23 @@ function inplaytracker_showthread()
         // wir gehen somit erstmal alle Array-Einträge, welche wir durch die explode generiert haben, mit der foreach durch und übergeben sie $chara. Diese können wir dann Einzeln betrachten.
         foreach ($charas as $chara) {
 
+            $ipt_edit = "";
             $ipt_addchara = "";
 
             $chara = $db->escape_string($chara);
             $chara_query = $db->simple_select("users", "*", "username ='$chara'");
             $charaktername = $db->fetch_array($chara_query);
+          
 
             if ($charaktername['uid'] == $mybb->user['uid']) {
                 eval ("\$ipt_edit = \"" . $templates->get("ipt_editscene_showthread") . "\";");
             }
 
+
             if ($charaktername['uid'] != $mybb->user['uid'] && $thread['uid'] != $mybb->user['uid'] && $thread['add_charas'] == 1) {
                 eval ("\$ipt_addchara = \"" . $templates->get("ipt_showthread_addcharas") . "\";");
+            } else{
+                $ipt_addchara = "";
             }
 
             if (!empty($charaktername)) {
@@ -1293,12 +1297,14 @@ function inplaytracker_showthread()
         $date = $mybb->input['date'];
         $time = $db->escape_string($mybb->input['time']);
         $place = $db->escape_string($mybb->input['place']);
+        $add_charas = $mybb->input['add_charas'];
 
         $editscene = array(
             "charas" => $charas,
             "date" => $date,
             "time" => $time,
-            "place" => $place
+            "place" => $place,
+            "add_charas" => $add_charas
         );
 
         $db->update_query("threads", $editscene, "tid = {$tid}");
@@ -1633,7 +1639,7 @@ function inplaytracker_global()
 {
     global $db, $templates, $mybb, $lang, $allscenes, $openscenes, $ipt_global, $ipt_reminder;
 
-    $lang->load['inplaytracker'];
+    $lang->load('inplaytracker');
 
     // variabel leeren und definieren
     $inplay_cat = "";
