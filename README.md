@@ -178,4 +178,4 @@ gap: 2px 1px;
 ```
 
 ## Bilder
-!(/assets/images/editscene_showthread.png)
+![/assets/images/editscene_showthread.png](https://github.com/Ales12/inplaytracker-2.0/blob/main/editscene_showthread.png)
