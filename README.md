@@ -178,4 +178,11 @@ gap: 2px 1px;
 ```
 
 ## Bilder
-![/assets/images/editscene_showthread.png](https://github.com/Ales12/inplaytracker-2.0/blob/main/editscene_showthread.png)
+![Innerhalb der Szene editieren](https://github.com/Ales12/inplaytracker-2.0/blob/main/editscene_showthread.png) <br />
+![ACP Einstellungen](https://github.com/Ales12/inplaytracker-2.0/blob/main/einstellungen.png)<br />
+![Darstellunge Forumdisplay](https://github.com/Ales12/inplaytracker-2.0/blob/main/forumdisplay.png)<br />
+![Szenenübersicht](https://github.com/Ales12/inplaytracker-2.0/blob/main/misc_sceneoverview.png)<br />
+![Profilansicht](https://github.com/Ales12/inplaytracker-2.0/blob/main/profile.png)<br />
+![Erinnerungsalert](https://github.com/Ales12/inplaytracker-2.0/blob/main/reminder.png)<br />
+![Erinnerungsübersicht](https://github.com/Ales12/inplaytracker-2.0/blob/main/reminder_overview.png)<br />
+![Showthread Ansicht](https://github.com/Ales12/inplaytracker-2.0/blob/main/showthread.png)<br />
