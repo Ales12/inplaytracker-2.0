@@ -43,19 +43,26 @@ $l['ipt_reminder_global'] = "Du hast aktuell {1} Szenen die älter als {2} Tage 
 $l['ipt_activescenes'] = "aktive Szenen";
 $l['ipt_closedscenes'] = "beendete Szenen";
 $l['ipt_writeposts'] = "Posts";
+$l['ipt_noactivescenes'] = "<div style='text-align: center;'>Aktuell keine aktiven Szenen</div>";
+$l['ipt_noclosedscenes'] = "<div style='text-align: center;'>Aktuell keine beendeten Szenen</div>";
 
 // Postreminder
 $l['ipt_reminder'] = "Posterinnerung";
-$l['ipt_sincedays'] = "Folgende Szenen sind seit {1} Tagen offen";
-$l['ipt_sincedays_1'] = "Folgende Szene ist seit {1} Tagen offen";
-
+$l['ipt_sincedays'] = "Folgende Szenen sind seit min. {1} Tagen offen";
+$l['ipt_sincedays_1'] = "Folgende Szene ist seit min. {1} Tagen offen";
+$l['ipt_reminder_global_1'] = "Du hast aktuell {1} Szene seit min {2} Tagen offen";
+$l['ipt_reminder_global'] = "Du hast aktuell {1} Szenen seit min {2} Tagen offen";
 // wer ist wo
 $l['ipt_wiw'] = "Sieht sich gerade die Übersicht der eigenen Inplayszenen an.";
 
 // Alerts
 $l['alert_ipt_newscene'] = "{1} hat eine neue Szene eröffnet.";
 $l["alert_ipt_newreply"] = "{1} hat auf eure Szene <b>{2}</b> geantwortet.";
+$l["alert_ipt_edit"] = "{1} hat dich bei der Szene <b>{2}</b> hinzugefügt.";
+$l["alert_ipt_add"] = "{1} hat sich eurer Szene <b>{2}</b> hinzugefügt.";
 
 // Alerts optionen
 $l['myalerts_setting_alert_ipt_newscene'] = "Möchtest du eine Benachrichtung, wenn eine neue Szene eröffnet wurde?";
 $l['myalerts_setting_alert_ipt_newreply'] = "Möchtest du eine Benachrichtung, wenn eine neue Antwort in deiner Szene veröffentlich wurde?";
+$l['myalerts_setting_alert_ipt_edit'] = "Möchtest du eine Benachrichtung, wenn du eine Szene hinzugefügt wurdest?";
+$l["myalerts_setting_alert_ipt_add"] = "Möchtest du anderen Mitteilen, wenn du dich einer Szene hinzufügst?";

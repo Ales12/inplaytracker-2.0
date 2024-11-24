@@ -521,7 +521,7 @@ if(use_xmlhttprequest == "1")
         'title' => 'ipt_reminder_alert',
         'template' => $db->escape_string('<div class="red_alert">
 	<strong>
-		<a href="misc.php?action=postreminder">{$lang->ipt_reminder}</a></strong> 
+		<a href="misc.php?action=postreminder">{$lang->ipt_reminder_global}</a></strong> 
 </div>'),
         'sid' => '-1',
         'version' => '',
@@ -1704,7 +1704,9 @@ function inplaytracker_global()
             if ($next_chara == $chara) {
                 $openscenes++;
             }
-        }
+        }    
+        
+        eval ("\$ipt_global = \"" . $templates->get("ipt_global") . "\";");
         // Posterinnerung
 
         $query = $db->query("SELECT t.lastpost, t.lastposter
@@ -1732,8 +1734,6 @@ function inplaytracker_global()
             }
         }
     }
-    eval ("\$ipt_global = \"" . $templates->get("ipt_global") . "\";");
-
     if ($watingscenes > 0) {
         if ($watingscenes == 1) {
             $lang->ipt_reminder_global = $lang->sprintf($lang->ipt_reminder_global_1, $watingscenes, $postreminder);
