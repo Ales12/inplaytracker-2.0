@@ -175,5 +175,7 @@ gap: 2px 1px;
 
 
 .reminder_scenelastpost { grid-area: scenelastpost; }
-       ```
+```
 
+## Bilder
+!(/assets/images/editscene_showthread.png)
