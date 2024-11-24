@@ -1,6 +1,7 @@
 # inplaytracker-2.0
 Mit diesen Plugin könnt ihr eure Inplayszenen im Profil anzeigen lassen und euren Mitspieler darüber informieren, wenn es neue Antworten/eine neue Szene gibt. <br />
-Ihr habt zudem die Möglichkeit anzugeben, ob es sich um eine Gruppenszene oder Einzelszene handelt, so dass sich andere in eine Szene hinzufügen können. Alle Szenenpartner haben die Möglichkeit die Informationen über die Szene abzuändern.<br />
+Ihr habt zudem die Möglichkeit anzugeben, ob es sich um eine Gruppenszene oder Einzelszene handelt, so dass sich andere in eine Szene hinzufügen können. Alle Szenenpartner haben die Möglichkeit die Informationen über die Szene abzuändern. 
+<br />Zudem gibt es einen Integrierten Postreminder, welcher nach der angebenden Anzahl von Tagen als Alert erscheint.<br />
 <br />
 ## verbundener Plugin
 [Messagersystem by Ales](https://github.com/Ales12/messagersystem)
