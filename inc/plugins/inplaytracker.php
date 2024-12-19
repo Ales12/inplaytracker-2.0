@@ -42,6 +42,8 @@ $plugins->add_hook('member_profile_end', 'inplaytracker_member_profile');
 $plugins->add_hook('fetch_wol_activity_end', 'inplaytracker_user_activity');
 $plugins->add_hook('build_friendly_wol_location_end', 'inplaytracker_location_activity');
 
+$plugins->add_hook('postbit', 'inplaytracker_postbit');
+
 function inplaytracker_info()
 {
     return array(
@@ -1061,14 +1063,14 @@ function inplaytracker_editscene()
     $archive_forum = "";
 
     // variabel füllen
-    $inplay_cat = $mybb->setting['ipt_inplay_id'];
+
     $archive_forum = $mybb->setting['ipt_archive_id'];
     $messager = $mybb->settings['ipt_messager'];
     $messager_id = $mybb->settings['ipt_messager_id'];
-    // und einmal auslesen
+    $inplay_cat = $mybb->settings['ipt_inplay_id'];
 
     $forum['parentlist'] = "," . $forum['parentlist'] . ",";
-    if (preg_match("/,$inplay_cat,/i", $forum['parentlist']) or preg_match("/$archive_forum,/i", $forum['parentlist'])) {
+    if (preg_match("/,$inplay_cat,/i", $forum['parentlist']) or preg_match("/,$archive_forum,/i", $forum['parentlist'])) {
         $pid = $mybb->get_input('pid', MyBB::INPUT_INT);
         $add_charas = array(
             "0" => "{$lang->ipt_addcharas_no}",
@@ -1106,7 +1108,7 @@ function inplaytracker_editscene()
 
             if ($messager == 1) {
                 if ($forum['fid'] == $messager_id) {
-                    $ipt_newscene = "";
+                    $ipt_editscene = "";
                 } else {
                     eval ("\$ipt_editscene = \"" . $templates->get("ipt_editscene") . "\";");
                 }
@@ -1122,7 +1124,7 @@ function inplaytracker_editscene()
 /* geänderte Daten  in die Datenbank überspielen*/
 function inplaytracker_editscene_do()
 {
-    global $mybb, $forum, $db, $templates, $thread, $tid;
+    global $mybb, $forum, $db, $templates, $thread, $tid, $pid;
     // variabel leeren
     $inplay_cat = "";
     $archive_forum = "";
@@ -1133,23 +1135,23 @@ function inplaytracker_editscene_do()
 
     $forum['parentlist'] = "," . $forum['parentlist'] . ",";
     if (preg_match("/,$inplay_cat,/i", $forum['parentlist']) or preg_match("/$archive_forum,/i", $forum['parentlist'])) {
+        if ($thread['firstpost'] == $pid) {
+            $charas = $db->escape_string($mybb->input['charas']);
+            $date = $mybb->input['date'];
+            $time = $db->escape_string($mybb->input['time']);
+            $place = $db->escape_string($mybb->input['place']);
+            $scenestatus = $mybb->input['add_charas'];
 
-        $charas = $db->escape_string($mybb->input['charas']);
-        $date = $mybb->input['date'];
-        $time = $db->escape_string($mybb->input['time']);
-        $place = $db->escape_string($mybb->input['place']);
-        $scenestatus = $mybb->input['add_charas'];
+            $editscene = array(
+                "charas" => $charas,
+                "date" => $date,
+                "time" => $time,
+                "place" => $place,
+                "add_charas" => $scenestatus
+            );
 
-        $editscene = array(
-            "charas" => $charas,
-            "date" => $date,
-            "time" => $time,
-            "place" => $place,
-            "add_charas" => $scenestatus
-        );
-
-        $db->update_query("threads", $editscene, "tid = {$tid}");
-
+            $db->update_query("threads", $editscene, "tid = {$tid}");
+        }
     }
 
 }
@@ -1163,43 +1165,43 @@ function inplaytracker_reply_do()
 {
     global $db, $mybb, $templates, $lang, $forum, $thread, $tid;
     $lang->load('inplaytracker');
-    // variabeln leeren
-    $inplay_cat = "";
+   
+    $charas = "";
+    $subject = "";
 
-    // variabel füllen
-    $inplay_cat = $mybb->settings['ipt_inplay_id'];
+	$subject = $thread['subject'];
+    $charas = $thread['charas'];
+	// Einmal Charaktere informieren über neue Antwort auf Szene
+	$usernames = explode(',', $charas);
+	$usernames = array_map("trim", $usernames);
 
-    $forum['parentlist'] = "," . $forum['parentlist'] . ",";
-    if (preg_match("/,$inplay_cat,/i", $forum['parentlist'])) {
+	foreach ($usernames as $username) {
+		$username = $db->escape_string($username);
+		$uid_query = $db->query("SELECT uid, username
+		  FROM " . TABLE_PREFIX . "users
+		  WHERE username = '" . $username . "'
+		   ");
+		$row = $db->fetch_array($uid_query);
 
-        // einmal alle Charaktere schnappen und auseinander nehmen
-        $all_charas = explode(', ', $thread['charas']);
-        $subject = $thread['subject'];
-        $last_post = $db->fetch_field($db->query("SELECT pid FROM " . TABLE_PREFIX . "posts WHERE tid = '$tid' ORDER BY pid DESC LIMIT 1"), "pid");
-        foreach ($all_charas as $chara) {
-            $chara = htmlspecialchars($chara);
+		$uid = $row['uid'];
+		$from_uid = $mybb->user['uid'];
 
-            $query = $db->simple_select("users", "uid", "username='" . $chara . "'");
+		if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
+			$last_post = $db->fetch_field($db->query("SELECT pid FROM " . TABLE_PREFIX . "posts WHERE tid = '$thread[tid]' ORDER BY pid DESC LIMIT 1"), "pid");
 
-            $uid = $db->fetch_field($query, "uid");
-            $answer_uid = $mybb->user['uid'];
 
-            // Alert auslösen, weil wir wollen ja bescheid wissen, ne?!
-            if (class_exists('MybbStuff_MyAlerts_AlertTypeManager')) {
-                $alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('alert_ipt_newreply');
-                if ($alertType != NULL && $alertType->getEnabled() && $answer_uid != $uid) {
-                    $alert = new MybbStuff_MyAlerts_Entity_Alert((int) $uid, $alertType, (int) $tid);
-                    $alert->setExtraDetails([
-                        'subject' => $subject,
-                        'lastpost' => $last_post
-                    ]);
-                    MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
-                }
-            }
+			$alertType = MybbStuff_MyAlerts_AlertTypeManager::getInstance()->getByCode('alert_ipt_newreply');
+			if ($alertType != NULL && $alertType->getEnabled() && $from_uid != $uid) {
+				$alert = new MybbStuff_MyAlerts_Entity_Alert((int) $uid, $alertType, (int) $thread['tid']);
+				$alert->setExtraDetails([
+					'subject' => $subject,
+					'lastpost' => $last_post
+				]);
+				MybbStuff_MyAlerts_AlertManager::getInstance()->addAlert($alert);
 
-        }
-
-    }
+			}
+		}
+	}
 }
 
 
@@ -1255,7 +1257,7 @@ function inplaytracker_showthread()
             $chara = $db->escape_string($chara);
             $chara_query = $db->simple_select("users", "*", "username ='$chara'");
             $charaktername = $db->fetch_array($chara_query);
-          
+
 
             if ($charaktername['uid'] == $mybb->user['uid']) {
                 eval ("\$ipt_edit = \"" . $templates->get("ipt_editscene_showthread") . "\";");
@@ -1264,7 +1266,7 @@ function inplaytracker_showthread()
 
             if ($charaktername['uid'] != $mybb->user['uid'] && $thread['uid'] != $mybb->user['uid'] && $thread['add_charas'] == 1) {
                 eval ("\$ipt_addchara = \"" . $templates->get("ipt_showthread_addcharas") . "\";");
-            } else{
+            } else {
                 $ipt_addchara = "";
             }
 
@@ -1322,7 +1324,7 @@ function inplaytracker_forumdisplay(&$thread)
     $archive_forum = "";
     $charas = "";
     $chara = '';
- 
+
 
     // variabel füllen
     $inplay_cat = $mybb->settings['ipt_inplay_id'];
@@ -1357,7 +1359,7 @@ function inplaytracker_forumdisplay(&$thread)
         // Datum formatieren
         $thread['date'] = strtotime($thread['date']);
         $thread['date'] = date("d.m.Y", $thread['date']);
-           $ipt_forumdisplay = "";
+        $ipt_forumdisplay = "";
         eval ("\$ipt_forumdisplay = \"" . $templates->get("ipt_forumdisplay") . "\";");
     }
 }
@@ -1401,8 +1403,10 @@ function inplaytracker_misc()
         $allopenscene = "Szenen";
 
         while ($charaselect = $db->fetch_array($select)) {
+            $character = "";
+            $chara = "";
             $character = $db->escape_string($charaselect["username"]);
-            $chara = $charaselect['username'];
+            $charaname = $charaselect['username'];
             $ipt_misc_scenes = "";
             $charascenes = 0;
             $opencharascenes = 0;
@@ -1427,6 +1431,7 @@ function inplaytracker_misc()
             while ($scenes = $db->fetch_array($scenequery)) {
                 //alle Szenen hochzählen insgesamt
                 $allscenes++;
+
 
                 if ($allscenes == 1) {
                     $allaktivescene = "Szene";
@@ -1458,7 +1463,7 @@ function inplaytracker_misc()
                     $next_chara = $get_charas[0];
                 }
 
-                if ($next_chara == $chara) {
+                if ($next_chara == $charaname) {
                     // du bist dran bei deiner Szene
                     $scenestatus = "<div class='openscene'>{$lang->ipt_scenestatus}</div>";
 
@@ -1506,7 +1511,7 @@ function inplaytracker_misc()
                 $lastscenepost = "<a href='showthread.php?tid={$scenes['tid']}&action=lastpost'>{$lang->ipt_lastpost}</a>";
                 $scenes['lastposter'] = build_profile_link($scenes['lastposter'], $scenes['lastposteruid']);
                 $scenes['lastpost'] = my_date("relative", $scenes['lastpost']);
-
+                $scenes['subject'] = "<a href='showthread.php?tid={$scenes['tid']}'>{$scenes['subject']}</a>";
                 eval ("\$ipt_misc_scenes .= \"" . $templates->get("ipt_misc_scenes") . "\";");
             }
             $charascenes = $lang->sprintf($lang->ipt_charascenes, $opencharascenes, $openscene, $charascenes, $aktivescene);
@@ -1704,8 +1709,8 @@ function inplaytracker_global()
             if ($next_chara == $chara) {
                 $openscenes++;
             }
-        }    
-        
+        }
+
         eval ("\$ipt_global = \"" . $templates->get("ipt_global") . "\";");
         // Posterinnerung
 
@@ -2048,4 +2053,17 @@ function inplaytracker_location_activity($plugin_array)
         $plugin_array['location_name'] = $lang->ipt_wiw;
     }
     return $plugin_array;
+}
+
+function inplaytracker_postbit(&$post){
+    global $mybb, $lang, $forum, $templates;
+
+    $inplay_cat = $mybb->settings['ipt_inplay_id'];
+	$archive_forum = $mybb->setting['ipt_archive_id'];
+	$forum['parentlist'] = "," . $forum['parentlist'] . ",";
+	if (preg_match("/,$inplay_cat,/i", $forum['parentlist'])) {
+    
+        $post['ipt_post'] = "ipt_postbody";
+    }
+
 }
