@@ -63,13 +63,13 @@ function inplaytracker_install()
 {
     global $db, $cache;
     //Datenbank erstellen
-    if ($db->engine == 'mysql' || $db->engine == 'mysqli') {
+
         $db->query("ALTER TABLE `" . TABLE_PREFIX . "threads` ADD `charas` varchar(400) CHARACTER SET utf8 NOT NULL;");
         $db->query("ALTER TABLE `" . TABLE_PREFIX . "threads` ADD `date` varchar(400)  NOT NULL;");
         $db->query("ALTER TABLE `" . TABLE_PREFIX . "threads` ADD `time` varchar(400) NOT NULL;");
         $db->query("ALTER TABLE `" . TABLE_PREFIX . "threads` ADD `place` varchar(400) CHARACTER SET utf8 NOT NULL ;");
         $db->query("ALTER TABLE `" . TABLE_PREFIX . "threads` ADD `add_charas` int(10) DEFAULT 0;");
-    }
+    
 
     // Einstellungen
     $setting_group = array(
