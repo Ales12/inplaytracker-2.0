@@ -1544,7 +1544,8 @@ function inplaytracker_misc()
             $charascenes = 0;
             $opencharascenes = 0;
             $count = 0;
-
+        $ipt_reminder_scenes = "";
+            $ipt_reminder_charas = "";
 
             $scenequery = $db->query("SELECT t.lastposter, t.lastpost, t.date, t.time, t.charas, t.subject, t.place, t.lastposteruid, p.tid
     FROM " . TABLE_PREFIX . "posts p
